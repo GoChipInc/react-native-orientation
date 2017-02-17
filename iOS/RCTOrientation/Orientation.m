@@ -19,7 +19,10 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
 - (instancetype)init
 {
   if ((self = [super init])) {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:)
+    //                                             name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(interfaceOrientationDidChange:)
+                                                 name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
   }
   return self;
 
@@ -39,6 +42,16 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
   [self.bridge.eventDispatcher sendDeviceEventWithName:@"orientationDidChange"
                                               body:@{@"orientation": [self getOrientationStr:orientation]}];
 
+}
+
+- (void)interfaceOrientationDidChange:(NSNotification *)notification
+{
+    UIDeviceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    [self.bridge.eventDispatcher sendDeviceEventWithName:@"specificOrientationDidChange"
+                                                    body:@{@"specificOrientation": [self getSpecificOrientationStr:orientation]}];
+    
+    [self.bridge.eventDispatcher sendDeviceEventWithName:@"orientationDidChange"
+                                                    body:@{@"orientation": [self getOrientationStr:orientation]}];
 }
 
 - (NSString *)getOrientationStr: (UIDeviceOrientation)orientation {
@@ -185,3 +198,4 @@ RCT_EXPORT_METHOD(unlockAllOrientations)
 }
 
 @end
+
